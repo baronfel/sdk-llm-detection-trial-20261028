@@ -14,6 +14,7 @@ if: github.repository == 'baronfel/sdk-llm-detection-trial-20261028' && github.r
 checkout:
   repository: dotnet/sdk
   ref: 7d24d6cf305b1d175811c32490bdd3d543ad51c1
+  path: sdk
 
 permissions:
   contents: read
@@ -140,7 +141,10 @@ Use current public upstream evidence, not your prior knowledge.
 Publish one complete report in the workflow's tracking issue.
 This trial publishes only to `baronfel/sdk-llm-detection-trial-20261028`.
 Pass `--repo baronfel/sdk-llm-detection-trial-20261028` on every `gh issue` command.
-The checkout is the pinned public SDK source, not the report repository.
+The pinned public SDK source is in the `sdk/` checkout, not the report repository.
+Interpret every source path below relative to `sdk/`.
+Perform code searches and source reads inside `sdk/`.
+Read `sdk/.git/HEAD` and its referenced ref to identify the audited SDK commit.
 Do not modify product code, tests, workflows, or upstream repositories.
 Do not open pull requests, assign work, or change detection automatically.
 Before research, locate the tracker as described in section 6.
