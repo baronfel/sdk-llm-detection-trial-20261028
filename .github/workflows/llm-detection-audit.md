@@ -199,6 +199,8 @@ Do not treat this starting list as an exhaustive list of implementations.
 Record the audited SDK commit from the checkout.
 Inventory every output label, variable name, expected value, and matching operation.
 Expand compound rules so each signal receives its own assessment.
+Count alternatives from the expanded inventory, not from comments or an estimate.
+Keep one report row per alternative, even when several alternatives share a label.
 Read the implementation to establish presence, empty-string, case, and value semantics.
 Check whether multiple labels accumulate and whether rule order affects the output.
 Do not infer precedence from comments alone.
@@ -283,6 +285,11 @@ Within that budget, use at most six discovery searches and ten GitHub code-searc
 Prefer repository trees and targeted file reads over repeated global code searches.
 Use `gh api` to read repository trees and resolve release SHAs.
 Read selected public source files with HTTPS GET requests to `raw.githubusercontent.com`.
+Use separate shell calls for independent upstream requests.
+For API requests with parameters, specify `gh api --method GET`.
+The `-f` and `-F` options otherwise select POST and can require write approval.
+If raw source retrieval fails, use the contents API with `Accept: application/vnd.github.raw+json`.
+Inspect the response before filtering it, so errors cannot appear as empty search results.
 Do not depend on `gh search code --json` projections, which can return empty fields through the CLI proxy.
 Code search is optional, not a prerequisite for source inspection or discovery.
 Fetch only relevant source windows and documentation sections.
@@ -291,6 +298,10 @@ If code search is unavailable, stop code searches and continue with permitted tr
 Do not switch credentials, bypass the firewall, or broaden permissions.
 
 If one upstream is unavailable, mark its signals Unverifiable and continue.
+Attempt an official source or documentation lookup for every inventoried harness before publishing.
+Record a concrete retrieval failure or evidence gap for each Unverifiable signal.
+One denied request does not justify stopping research on other harnesses.
+Perform discovery after existing-signal research unless the retrieval budget or time limit is exhausted.
 Include every inventoried signal even when the evidence budget is exhausted.
 Identify every unreviewed signal and unperformed discovery step.
 Never turn a failed lookup into a successful verification or removal recommendation.
