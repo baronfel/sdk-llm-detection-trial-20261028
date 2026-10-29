@@ -87,6 +87,7 @@ tools:
     # Public upstream repositories are needed for source and release evidence.
     min-integrity: none
   bash:
+    - "base64:*"
     - "gh:*"
     - "safeoutputs:*"
     - "cat:*"
@@ -293,11 +294,15 @@ Use at most 150 remote read requests, including pagination and retries.
 Within that budget, use at most six discovery searches and ten GitHub code-search requests.
 Prefer repository trees and targeted file reads over repeated global code searches.
 Use `gh api` to read repository trees and resolve release SHAs.
-Use `web-fetch` to read selected public source files from `raw.githubusercontent.com`.
-Use separate shell calls for independent upstream requests.
+Read selected public source files through the GitHub contents API.
+The CLI proxy can return JSON even when the request uses a raw-content Accept header.
+Decode the returned content with `gh api repos/OWNER/REPO/contents/PATH?ref=SHA --jq .content | base64 --decode`.
+Use `web-fetch` for vendor documentation when the tool is available.
+If it is unavailable, continue with public repository sources and record documentation gaps.
+Use separate, sequential shell calls for independent upstream requests.
+Do not run shell calls concurrently, because concurrent `gh` processes can exhaust sandbox threads.
 For API requests with parameters, specify `gh api --method GET`.
 The `-f` and `-F` options otherwise select POST and can require write approval.
-If raw source retrieval fails, use the contents API with `Accept: application/vnd.github.raw+json`.
 Inspect the response before filtering it, so errors cannot appear as empty search results.
 Do not depend on `gh search code --json` projections, which can return empty fields through the CLI proxy.
 Code search is optional, not a prerequisite for source inspection or discovery.
@@ -348,11 +353,12 @@ Even an unchanged or entirely verified result must publish the full current repo
 Before publishing, find issues with the exact body marker
 `gh-aw-workflow-id: llm-detection-audit` in `${{ github.repository }}`.
 Search open and closed issues and inspect candidate bodies, authors, labels, and titles.
-Start with this read-only listing, which avoids the CLI proxy's issue-search failure:
-`gh issue list --repo ${{ github.repository }} --state all --label agentic-workflows --limit 1000 --json number,title,state,author,labels --jq '{count:length,candidates:[.[]|select(.title=="[CLI agent detection] Evidence report")]}'`.
+Start with this read-only listing, without `--label` or `--search`, which can fail through the CLI proxy:
+`gh issue list --repo ${{ github.repository }} --state all --limit 1000 --json number,title,state,author,labels --jq '{count:length,candidates:[.[]|select(.title=="[CLI agent detection] Evidence report")]}'`.
 Read each exact-title candidate with `gh issue view` and inspect its complete body.
 If the listing reaches its limit, paginate the issues API before concluding that no tracker exists.
-If issue search fails, retry once through the labeled listing.
+If the listing fails, retry once through `gh api --method GET 'repos/${{ github.repository }}/issues?state=all&per_page=100'`.
+Follow pagination before treating that response as a complete issue listing.
 Treat the lookup as unavailable only if neither approach can cover all candidates.
 Accept only issues authored by GitHub Actions with that marker, the
 `agentic-workflows` label, and the title `[CLI agent detection] Evidence report`.
