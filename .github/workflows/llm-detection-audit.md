@@ -348,6 +348,12 @@ Even an unchanged or entirely verified result must publish the full current repo
 Before publishing, find issues with the exact body marker
 `gh-aw-workflow-id: llm-detection-audit` in `${{ github.repository }}`.
 Search open and closed issues and inspect candidate bodies, authors, labels, and titles.
+Start with this read-only listing, which avoids the CLI proxy's issue-search failure:
+`gh issue list --repo ${{ github.repository }} --state all --label agentic-workflows --limit 1000 --json number,title,state,author,labels --jq '{count:length,candidates:[.[]|select(.title=="[CLI agent detection] Evidence report")]}'`.
+Read each exact-title candidate with `gh issue view` and inspect its complete body.
+If the listing reaches its limit, paginate the issues API before concluding that no tracker exists.
+If issue search fails, retry once through the labeled listing.
+Treat the lookup as unavailable only if neither approach can cover all candidates.
 Accept only issues authored by GitHub Actions with that marker, the
 `agentic-workflows` label, and the title `[CLI agent detection] Evidence report`.
 GitHub API responses use `github-actions[bot]`.
