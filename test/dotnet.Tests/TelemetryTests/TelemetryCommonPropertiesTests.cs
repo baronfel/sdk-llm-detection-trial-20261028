@@ -319,6 +319,10 @@ public class TelemetryCommonPropertiesTests : SdkTest
         new object[] { new Dictionary<string, string> { { "CLAUDE_CODE_IS_COWORK", "1" }, { "CLAUDE_CODE", "1" } }, "cowork, claude" },
         new object[] { new Dictionary<string, string> { { "OR_APP_NAME", "SomeOtherApp" } }, null! },
         new object[] { new Dictionary<string, string>(), null! },
+        new object[] { new Dictionary<string, string> { { "OPENCODE", "1" } }, "opencode" },
+        new object[] { new Dictionary<string, string> { { "OPENCODE", "" } }, null! },
+        new object[] { new Dictionary<string, string> { { "OPENCODE", "false" } }, "opencode" },
+        new object[] { new Dictionary<string, string> { { "OPENCODE_AI", "1" }, { "OPENCODE", "1" } }, "opencode" },
     };
 
     public static IEnumerable<object[]> CITelemetryTestCases => new List<object[]>()
