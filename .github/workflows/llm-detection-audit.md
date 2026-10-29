@@ -242,6 +242,8 @@ Do not limit upstream investigation to names already present in the SDK.
 For each covered harness with public source, build an independent inventory of agent identity signals exported to command children.
 Compare that inventory with the SDK rules, even when an existing SDK signal is Verified.
 Missing alternatives in an already covered harness are detection gaps, not duplicate harness candidates.
+Investigate one public harness to an evidence-based stopping point before moving to the next.
+Do not substitute one source window per harness for tracing its environment dependencies.
 
 Trace the command environment in both directions:
 
@@ -252,6 +254,11 @@ Trace the command environment in both directions:
 5. Identify assignments, filtering, deletion, and overrides between the agent context and the child launch.
 6. Record newly discovered identity variables, values, activation conditions, and the complete propagation chain.
 
+An inherited environment or a hook-provided map is an unresolved dependency, not a stopping point.
+Follow that dependency to the code that populates it.
+Search product-prefixed environment keys and their setters independently of the SDK inventory.
+Read imports and enclosing functions before choosing follow-up files.
+For each public harness, record the assignment-to-launch trace or the specific blocked edge and retrieval/budget reason.
 When code search is unavailable, use the repository tree to locate environment, execution, initialization, and extension code.
 Derive search terms from the upstream project and discovered symbols, not only the SDK's expected variable names.
 Treat a no-match search as a reason to expand the trace, not to stop.
@@ -371,6 +378,8 @@ The report must say **Incomplete** when any signal is unreviewed or unverifiable
 Separate completed research with a known mismatch from incomplete research.
 Do not report "all valid" merely because no confirmed mismatch was found.
 Even an unchanged or entirely verified result must publish the full current report.
+Only after completing current research, read the previous report to summarize material changes.
+Do not use its findings, source paths, SHAs, or line windows as the investigation plan.
 
 ## 6. Maintain one tracking issue
 
@@ -379,7 +388,9 @@ Before publishing, find issues with the exact body marker
 Search open and closed issues and inspect candidate bodies, authors, labels, and titles.
 Start with this read-only listing, without `--label` or `--search`, which can fail through the CLI proxy:
 `gh issue list --repo ${{ github.repository }} --state all --limit 1000 --json number,title,state,author,labels --jq '{count:length,candidates:[.[]|select(.title=="[CLI agent detection] Evidence report")]}'`.
-Read each exact-title candidate with `gh issue view` and inspect its complete body.
+Read each exact-title candidate with `gh issue view`.
+Project its body to workflow-marker and current-run/attempt checks with `--jq`.
+Return only those checks and identity metadata during tracker lookup, not the previous report narrative or citations.
 If the listing reaches its limit, paginate the issues API before concluding that no tracker exists.
 If the listing fails, retry once through `gh api --method GET 'repos/${{ github.repository }}/issues?state=all&per_page=100'`.
 Follow pagination before treating that response as a complete issue listing.
@@ -390,7 +401,8 @@ GitHub API responses use `github-actions[bot]`.
 The `gh` CLI can expose the same bot as `app/github-actions` with `is_bot: true`.
 Accept either representation, but never a similarly named human account.
 Do not accept an issue based on its title or search snippet alone.
-Treat previous reports as historical context, not proof of current upstream behavior.
+Defer the previous report narrative until current upstream investigation is complete.
+Resolve current releases and source paths independently through repository metadata and trees.
 
 If exactly one matching issue is open, update only its body.
 Call `update_issue` once with its issue number, `operation: "replace"`, and the complete report.
